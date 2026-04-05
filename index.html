@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hospital Tracker</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-block">
+        <h1>Hospital Tracker</h1>
+        <p>Dual RFID demo: NFC + simulated UHF</p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title-row">
+          <h2>Folders</h2>
+          <button id="addFolderBtn" class="small-btn">+ Folder</button>
+        </div>
+        <div id="folderGrid" class="folder-grid"></div>
+      </div>
+
+      <div class="panel compact" id="nfcPanel">
+        <h2>NFC Scan</h2>
+        <div id="nfcStatus" class="status-box idle">Waiting for scan…</div>
+      </div>
+
+      <div class="panel compact" id="uhfLauncherPanel">
+        <h2>UHF Simulation</h2>
+        <button id="openSimulatorBtn" class="primary-btn full-width">Open simulated UHF</button>
+      </div>
+
+      <div class="panel compact hidden" id="historyPanel">
+        <h2>Ping History</h2>
+        <div id="historyList" class="history-list"></div>
+      </div>
+    </aside>
+
+    <main class="content-area">
+      <section id="homeView" class="view active">
+        <div class="hero-card">
+          <h2>Equipment folders</h2>
+          <p>Select a folder to view equipment names, in/out status, and last confirmed UHF location.</p>
+        </div>
+      </section>
+
+      <section id="folderView" class="view">
+        <div class="content-header">
+          <button id="backHomeBtn" class="ghost-btn">← Back</button>
+          <h2 id="folderTitle">Folder</h2>
+        </div>
+        <div id="folderItemList" class="item-list"></div>
+      </section>
+
+      <section id="simulatorView" class="view">
+        <div class="content-header split">
+          <div>
+            <h2>Simulated UHF Area</h2>
+            <p class="subtext">Use the editor to upload a floor plan, scale it, and place or delete UHF modules. Exit editor to move the RFID-tag cursor only inside the simulation window.</p>
+          </div>
+          <div class="header-actions">
+            <button id="toggleHistoryBtn" class="small-btn">History</button>
+            <button id="toggleEditBtn" class="small-btn active">Exit editor</button>
+            <button id="backFromSimBtn" class="ghost-btn">← Back</button>
+          </div>
+        </div>
+
+        <div class="simulator-layout">
+          <div class="sim-guide">
+            <div class="guide-card">
+              <strong>Tracked item</strong>
+              <select id="trackedItemSelect"></select>
+            </div>
+            <div class="guide-card">
+              <strong>Current cursor mode</strong>
+              <span id="cursorModeLabel">Editor</span>
+            </div>
+            <div class="guide-card">
+              <strong>Update rule</strong>
+              <span>5-second ping, 2 matching pings to confirm location</span>
+            </div>
+            <div class="guide-card editor-tools-card">
+              <strong>Editor tools</strong>
+              <div class="editor-tools">
+                <label class="field-stack">
+                  <span>Background image</span>
+                  <input id="bgImageInput" type="file" accept="image/*" />
+                </label>
+
+                <label class="field-stack">
+                  <span>Image scale</span>
+                  <div class="scale-row">
+                    <input id="bgScaleInput" type="range" min="25" max="250" value="100" />
+                    <span id="bgScaleLabel">100%</span>
+                  </div>
+                </label>
+
+                <div class="tool-action-grid">
+                  <button id="clearBgBtn" class="small-btn" type="button">Remove image</button>
+                  <button id="toggleDeleteModeBtn" class="small-btn" type="button">Delete modules</button>
+                </div>
+                <p class="mini-help">In editor mode: click empty space to add a module. In delete mode: click an existing module to remove it.</p>
+              </div>
+            </div>
+          </div>
+
+          <div id="simCanvasWrap" class="sim-canvas-wrap editor-mode">
+            <div id="simCanvas" class="sim-canvas">
+              <img id="simBackgroundImage" class="sim-background-image hidden" alt="Simulation background" />
+              <div id="tagCursor" class="tag-cursor hidden">RFID</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div id="registrationModal" class="modal hidden">
+    <div class="modal-card">
+      <h3>Register new equipment</h3>
+      <p id="registrationUidText" class="mono"></p>
+      <input id="itemNameInput" type="text" placeholder="Equipment name" />
+      <select id="folderSelect"></select>
+      <div class="modal-actions">
+        <button id="cancelRegisterBtn" class="ghost-btn">Cancel</button>
+        <button id="saveRegisterBtn" class="primary-btn">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
