@@ -1,0 +1,512 @@
+{
+  "folders": [
+    {
+      "id": "folder-infusion",
+      "name": "Infusion Pumps"
+    },
+    {
+      "id": "folder-wheelchairs",
+      "name": "Wheelchairs"
+    },
+    {
+      "id": "folder-monitors",
+      "name": "Vital Monitors"
+    },
+    {
+      "id": "folder-beds",
+      "name": "Beds"
+    }
+  ],
+  "items": {
+    "97:34:BC:40": {
+      "uid": "97:34:BC:40",
+      "name": "card 1",
+      "folder_id": "folder-monitors",
+      "status": "IN",
+      "last_confirmed_location": "UHF Module 2",
+      "last_seen_module": "uhf-1775169380939",
+      "pending_module": "uhf-1775169380939",
+      "pending_count": 7,
+      "created_at": 1775169289,
+      "updated_at": 1775169464
+    },
+    "A7:4D:70:60": {
+      "uid": "A7:4D:70:60",
+      "name": "tap",
+      "folder_id": "folder-wheelchairs",
+      "status": "OUT",
+      "last_confirmed_location": "UHF Module 3",
+      "last_seen_module": "uhf-1775169383794",
+      "pending_module": "uhf-1775169383794",
+      "pending_count": 2,
+      "created_at": 1775169464,
+      "updated_at": 1775170226
+    }
+  },
+  "uhf_modules": [
+    {
+      "id": "uhf-1775422712038",
+      "name": "UHF Module 1",
+      "x": 419.45831298828125,
+      "y": 476.7430419921875
+    }
+  ],
+  "uhf_history": [
+    {
+      "timestamp": 1775169389,
+      "uid": "97:34:BC:40",
+      "item_name": "card 1",
+      "module_id": "uhf-1775169375501",
+      "module_name": "UHF Module 1"
+    },
+    {
+      "timestamp": 1775169399,
+      "uid": "97:34:BC:40",
+      "item_name": "card 1",
+      "module_id": "uhf-1775169375501",
+      "module_name": "UHF Module 1"
+    },
+    {
+      "timestamp": 1775169404,
+      "uid": "97:34:BC:40",
+      "item_name": "card 1",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169419,
+      "uid": "97:34:BC:40",
+      "item_name": "card 1",
+      "module_id": "uhf-1775169383794",
+      "module_name": "UHF Module 3"
+    },
+    {
+      "timestamp": 1775169424,
+      "uid": "97:34:BC:40",
+      "item_name": "card 1",
+      "module_id": "uhf-1775169383794",
+      "module_name": "UHF Module 3"
+    },
+    {
+      "timestamp": 1775169429,
+      "uid": "97:34:BC:40",
+      "item_name": "card 1",
+      "module_id": "uhf-1775169375501",
+      "module_name": "UHF Module 1"
+    },
+    {
+      "timestamp": 1775169434,
+      "uid": "97:34:BC:40",
+      "item_name": "card 1",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169439,
+      "uid": "97:34:BC:40",
+      "item_name": "card 1",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169444,
+      "uid": "97:34:BC:40",
+      "item_name": "card 1",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169449,
+      "uid": "97:34:BC:40",
+      "item_name": "card 1",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169454,
+      "uid": "97:34:BC:40",
+      "item_name": "card 1",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169459,
+      "uid": "97:34:BC:40",
+      "item_name": "card 1",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169464,
+      "uid": "97:34:BC:40",
+      "item_name": "card 1",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169474,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169479,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169484,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169489,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169494,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169499,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169504,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169509,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169514,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169519,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169524,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169529,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169534,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169539,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169375501",
+      "module_name": "UHF Module 1"
+    },
+    {
+      "timestamp": 1775169544,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169375501",
+      "module_name": "UHF Module 1"
+    },
+    {
+      "timestamp": 1775169554,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169375501",
+      "module_name": "UHF Module 1"
+    },
+    {
+      "timestamp": 1775169559,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169383794",
+      "module_name": "UHF Module 3"
+    },
+    {
+      "timestamp": 1775169564,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169383794",
+      "module_name": "UHF Module 3"
+    },
+    {
+      "timestamp": 1775169569,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169383794",
+      "module_name": "UHF Module 3"
+    },
+    {
+      "timestamp": 1775169579,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169584,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169589,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169594,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169599,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169604,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169609,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169614,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169619,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169624,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169629,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169634,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169639,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169644,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169649,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169654,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169659,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169664,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169669,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169674,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169679,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169684,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169689,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169694,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169699,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169704,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169709,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775169714,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169380939",
+      "module_name": "UHF Module 2"
+    },
+    {
+      "timestamp": 1775170184,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169375501",
+      "module_name": "UHF Module 1"
+    },
+    {
+      "timestamp": 1775170189,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169375501",
+      "module_name": "UHF Module 1"
+    },
+    {
+      "timestamp": 1775170194,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169375501",
+      "module_name": "UHF Module 1"
+    },
+    {
+      "timestamp": 1775170204,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169383794",
+      "module_name": "UHF Module 3"
+    },
+    {
+      "timestamp": 1775170209,
+      "uid": "A7:4D:70:60",
+      "item_name": "tap",
+      "module_id": "uhf-1775169383794",
+      "module_name": "UHF Module 3"
+    }
+  ],
+  "pending_tag": null
+}
