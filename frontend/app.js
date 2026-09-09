@@ -1,29 +1,32 @@
-// ============================================================
-//  app.js
-//  Hospital Tracker — Frontend logic
-// ============================================================
-
-// ============================================================
-//  SECTION: GLOBAL STATE
-// ============================================================
+// Hospital Equipment Tracker - Client Interface
 const socket = io();
-let appState = { folders: [], items: {}, uhf_modules: [], uhf_history: [], pending_tag: null };
+
+// Application State
+let appState = {
+  folders: [],
+  items: {},
+  uhf_modules: [],
+  uhf_history: [],
+  pending_tag: null
+};
+
 let currentFolderId = null;
 let currentView = 'home';
 let simEditMode = true;
 let deleteModuleMode = false;
 let selectedTrackedUid = null;
 let tagPosition = { x: 120, y: 120 };
-let pingIntervalId = null;
-let backgroundImageDataUrl = null;
-let backgroundScalePercent = 100;
+let pingInterval = null;
+let floorplanDataUrl = null;
+let floorplanScale = 100;
 
-// ============================================================
-//  SECTION: DOM REFERENCES
-// ============================================================
-const homeView = document.getElementById('homeView');
-const folderView = document.getElementById('folderView');
-const simulatorView = document.getElementById('simulatorView');
+// DOM Elements
+const views = {
+  home: document.getElementById('homeView'),
+  folder: document.getElementById('folderView'),
+  sim: document.getElementById('simulatorView')
+};
+
 const folderGrid = document.getElementById('folderGrid');
 const folderTitle = document.getElementById('folderTitle');
 const folderItemList = document.getElementById('folderItemList');
@@ -31,11 +34,13 @@ const nfcStatus = document.getElementById('nfcStatus');
 const historyPanel = document.getElementById('historyPanel');
 const historyList = document.getElementById('historyList');
 const trackedItemSelect = document.getElementById('trackedItemSelect');
+
 const simCanvas = document.getElementById('simCanvas');
 const simCanvasWrap = document.getElementById('simCanvasWrap');
 const simBackgroundImage = document.getElementById('simBackgroundImage');
 const tagCursor = document.getElementById('tagCursor');
 const cursorModeLabel = document.getElementById('cursorModeLabel');
+
 const bgImageInput = document.getElementById('bgImageInput');
 const bgScaleInput = document.getElementById('bgScaleInput');
 const bgScaleLabel = document.getElementById('bgScaleLabel');
@@ -48,55 +53,54 @@ const registrationUidText = document.getElementById('registrationUidText');
 const itemNameInput = document.getElementById('itemNameInput');
 const folderSelect = document.getElementById('folderSelect');
 
-// ============================================================
-//  SECTION: BASIC HELPERS
-// ============================================================
-function showView(name) {
+// Utility helpers
+function switchView(name) {
   currentView = name;
-  [homeView, folderView, simulatorView].forEach(v => v.classList.remove('active'));
-  if (name === 'home') homeView.classList.add('active');
-  if (name === 'folder') folderView.classList.add('active');
-  if (name === 'sim') simulatorView.classList.add('active');
+  Object.values(views).forEach(v => v.classList.remove('active'));
+  if (views[name]) views[name].classList.add('active');
   renderTagCursor();
 }
 
-function folderItems(folderId) {
+function getItemsInFolder(folderId) {
   return Object.values(appState.items).filter(item => item.folder_id === folderId);
 }
 
 function getFolderName(folderId) {
   const folder = appState.folders.find(f => f.id === folderId);
-  return folder ? folder.name : 'Unassigned';
+  return folder ? folder.name : 'General Inventory';
 }
 
-function formatTime(ts) {
-  return new Date(ts * 1000).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+function formatTime(isoOrTimestamp) {
+  if (!isoOrTimestamp) return 'Never';
+  const date = typeof isoOrTimestamp === 'number' ? new Date(isoOrTimestamp * 1000) : new Date(isoOrTimestamp);
+  return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
 }
 
-async function api(url, options = {}) {
-  const res = await fetch(url, {
-    headers: { 'Content-Type': 'application/json' },
-    ...options,
-  });
+function clamp(val, min, max) {
+  return Math.min(Math.max(val, min), max);
+}
+
+async function apiRequest(endpoint, method = 'GET', data = null) {
+  const options = {
+    method,
+    headers: { 'Content-Type': 'application/json' }
+  };
+  if (data) options.body = JSON.stringify(data);
+
+  const res = await fetch(endpoint, options);
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ error: 'Request failed' }));
-    throw new Error(err.error || 'Request failed');
+    const errorBody = await res.json().catch(() => ({}));
+    throw new Error(errorBody.error || `HTTP ${res.status}`);
   }
   return res.json();
 }
 
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
-}
-
-// ============================================================
-//  SECTION: RENDER — SIDEBAR + FOLDERS
-// ============================================================
+// UI Rendering
 function renderFolders() {
   folderGrid.innerHTML = '';
 
   appState.folders.forEach(folder => {
-    const count = folderItems(folder.id).length;
+    const count = getItemsInFolder(folder.id).length;
     const tile = document.createElement('div');
     tile.className = 'folder-tile';
     tile.innerHTML = `
@@ -104,26 +108,27 @@ function renderFolders() {
       <div class="folder-name">${folder.name}</div>
       <div class="folder-count">${count} item${count === 1 ? '' : 's'}</div>
     `;
-    tile.addEventListener('click', () => {
+    tile.onclick = () => {
       currentFolderId = folder.id;
-      renderFolderView();
-      showView('folder');
-    });
+      renderFolderContents();
+      switchView('folder');
+    };
     folderGrid.appendChild(tile);
   });
 
+  // Simulator shortcut tile
   const simTile = document.createElement('div');
   simTile.className = 'folder-tile';
   simTile.innerHTML = `
     <div class="sim-launch-icon"></div>
-    <div class="folder-name">Simulated UHF</div>
-    <div class="folder-count">Open UHF demo area</div>
+    <div class="folder-name">Floorplan Simulation</div>
+    <div class="folder-count">Active UHF Grid</div>
   `;
-  simTile.addEventListener('click', () => showView('sim'));
+  simTile.onclick = () => switchView('sim');
   folderGrid.appendChild(simTile);
 }
 
-function renderFolderOptions() {
+function renderFolderSelectOptions() {
   folderSelect.innerHTML = '';
   appState.folders.forEach(folder => {
     const opt = document.createElement('option');
@@ -133,16 +138,16 @@ function renderFolderOptions() {
   });
 }
 
-function renderFolderView() {
+function renderFolderContents() {
   const folder = appState.folders.find(f => f.id === currentFolderId);
   if (!folder) return;
 
   folderTitle.textContent = folder.name;
-  const items = folderItems(folder.id);
+  const items = getItemsInFolder(folder.id);
   folderItemList.innerHTML = '';
 
   if (!items.length) {
-    folderItemList.innerHTML = '<div class="hero-card"><p>No equipment in this folder yet.</p></div>';
+    folderItemList.innerHTML = '<div class="hero-card"><p>No equipment assigned to this department yet.</p></div>';
     return;
   }
 
@@ -155,28 +160,25 @@ function renderFolderView() {
         <div class="mono">${item.uid}</div>
       </div>
       <div>
-        <div class="status-pill ${item.status === 'IN' ? 'in' : 'out'}">${item.status === 'IN' ? 'In use' : 'Out of use'}</div>
+        <div class="status-pill in">Active</div>
       </div>
       <div class="location-box">
-        <div><strong>Last confirmed location</strong></div>
-        <div>${item.last_confirmed_location || 'Unknown'}</div>
+        <div><strong>Last Location:</strong> ${item.last_seen_location || 'NFC Registration'}</div>
+        <div class="mono" style="font-size: 0.8rem;">${formatTime(item.last_seen_time)}</div>
       </div>
     `;
     folderItemList.appendChild(card);
   });
 }
 
-// ============================================================
-//  SECTION: RENDER — UHF SIMULATION
-// ============================================================
-function renderTrackedItemOptions() {
+function renderTrackedItemSelector() {
   const items = Object.values(appState.items);
   trackedItemSelect.innerHTML = '';
 
   if (!items.length) {
     const opt = document.createElement('option');
     opt.value = '';
-    opt.textContent = 'No registered equipment';
+    opt.textContent = 'No tagged equipment found';
     trackedItemSelect.appendChild(opt);
     selectedTrackedUid = null;
     return;
@@ -189,57 +191,58 @@ function renderTrackedItemOptions() {
     trackedItemSelect.appendChild(opt);
   });
 
-  if (!selectedTrackedUid || !items.some(item => item.uid === selectedTrackedUid)) {
+  if (!selectedTrackedUid || !items.some(i => i.uid === selectedTrackedUid)) {
     selectedTrackedUid = items[0].uid;
   }
   trackedItemSelect.value = selectedTrackedUid;
 }
 
-function renderHistory() {
+function renderHistoryLog() {
   historyList.innerHTML = '';
-  const entries = [...appState.uhf_history].slice().reverse();
-  entries.forEach(entry => {
+  appState.uhf_history.slice(0, 50).forEach(entry => {
     const div = document.createElement('div');
     div.className = 'history-entry';
-    div.textContent = `${formatTime(entry.timestamp)} — ${entry.item_name} pinged ${entry.module_name}`;
+    div.textContent = `${formatTime(entry.timestamp)} — Tag ${entry.item_uid} pinged at ${entry.location}`;
     historyList.appendChild(div);
   });
 }
 
-function renderBackgroundImage() {
-  if (!backgroundImageDataUrl) {
+function renderCanvas() {
+  // Background map
+  if (!floorplanDataUrl) {
     simBackgroundImage.classList.add('hidden');
     simBackgroundImage.removeAttribute('src');
-    return;
+  } else {
+    simBackgroundImage.src = floorplanDataUrl;
+    simBackgroundImage.classList.remove('hidden');
+    simBackgroundImage.style.width = `${floorplanScale}%`;
   }
 
-  simBackgroundImage.src = backgroundImageDataUrl;
-  simBackgroundImage.classList.remove('hidden');
-  simBackgroundImage.style.width = `${backgroundScalePercent}%`;
-}
-
-function renderModules() {
-  [...simCanvas.querySelectorAll('.sim-module')].forEach(el => el.remove());
-
-  appState.uhf_modules.forEach(module => {
-    const el = document.createElement('button');
-    el.type = 'button';
-    el.className = 'sim-module';
-    el.style.left = `${module.x}px`;
-    el.style.top = `${module.y}px`;
-    el.innerHTML = `<span>${module.name}</span>`;
+  // Gateway modules
+  simCanvas.querySelectorAll('.sim-module').forEach(el => el.remove());
+  appState.uhf_modules.forEach(mod => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'sim-module';
+    btn.style.left = `${mod.x}px`;
+    btn.style.top = `${mod.y}px`;
+    btn.innerHTML = `<span>${mod.name}</span>`;
 
     if (simEditMode && deleteModuleMode) {
-      el.classList.add('delete-ready');
+      btn.classList.add('delete-ready');
     }
 
-    el.addEventListener('click', async (event) => {
-      event.stopPropagation();
-      if (!(simEditMode && deleteModuleMode)) return;
-      await api(`/api/uhf/modules/${module.id}`, { method: 'DELETE' });
-    });
+    btn.onclick = async (e) => {
+      e.stopPropagation();
+      if (!simEditMode || !deleteModuleMode) return;
+      try {
+        await apiRequest(`/api/uhf/modules/${mod.id}`, 'DELETE');
+      } catch (err) {
+        console.error('Delete module error:', err);
+      }
+    };
 
-    simCanvas.appendChild(el);
+    simCanvas.appendChild(btn);
   });
 }
 
@@ -248,7 +251,7 @@ function renderTagCursor() {
     tagCursor.classList.add('hidden');
     simCanvasWrap.classList.add('editor-mode');
     simCanvasWrap.classList.remove('tracker-mode');
-    cursorModeLabel.textContent = deleteModuleMode ? 'Editor — delete modules' : 'Editor';
+    cursorModeLabel.textContent = deleteModuleMode ? 'Editor (Delete Active)' : 'Editor';
     return;
   }
 
@@ -257,230 +260,218 @@ function renderTagCursor() {
   tagCursor.style.top = `${tagPosition.y}px`;
   simCanvasWrap.classList.remove('editor-mode');
   simCanvasWrap.classList.add('tracker-mode');
-  cursorModeLabel.textContent = 'RFID tag';
+  cursorModeLabel.textContent = 'Active Tag';
 }
 
-function renderEditorControls() {
-  bgScaleInput.value = String(backgroundScalePercent);
-  bgScaleLabel.textContent = `${backgroundScalePercent}%`;
+function renderControls() {
+  bgScaleInput.value = String(floorplanScale);
+  bgScaleLabel.textContent = `${floorplanScale}%`;
   toggleDeleteModeBtn.classList.toggle('active', deleteModuleMode);
-  toggleDeleteModeBtn.textContent = deleteModuleMode ? 'Exit delete mode' : 'Delete modules';
+  toggleDeleteModeBtn.textContent = deleteModuleMode ? 'Done Deleting' : 'Remove Gateways';
   toggleDeleteModeBtn.disabled = !simEditMode;
   bgImageInput.disabled = !simEditMode;
-  bgScaleInput.disabled = !simEditMode || !backgroundImageDataUrl;
-  clearBgBtn.disabled = !simEditMode || !backgroundImageDataUrl;
+  bgScaleInput.disabled = !simEditMode || !floorplanDataUrl;
+  clearBgBtn.disabled = !simEditMode || !floorplanDataUrl;
 }
 
 function renderAll() {
   renderFolders();
-  renderFolderOptions();
-  renderFolderView();
-  renderTrackedItemOptions();
-  renderHistory();
-  renderBackgroundImage();
-  renderModules();
-  renderEditorControls();
+  renderFolderSelectOptions();
+  renderFolderContents();
+  renderTrackedItemSelector();
+  renderHistoryLog();
+  renderCanvas();
+  renderControls();
   renderTagCursor();
 
   if (appState.pending_tag) {
-    openRegistrationModal(appState.pending_tag.uid);
+    openRegistration(appState.pending_tag);
   }
 }
 
-// ============================================================
-//  SECTION: NFC REGISTRATION FLOW
-// ============================================================
-function openRegistrationModal(uid) {
+// Registration Modal
+function openRegistration(uid) {
   registrationUidText.textContent = uid;
   itemNameInput.value = '';
   registrationModal.classList.remove('hidden');
 }
 
-function closeRegistrationModal() {
+function closeRegistration() {
   registrationModal.classList.add('hidden');
 }
 
-// ============================================================
-//  SECTION: UHF PING CALCULATION
-// ============================================================
-function strongestModuleId() {
+// UHF Distance & Ping Logic
+function findNearestModule() {
   if (!appState.uhf_modules.length) return null;
 
-  let bestModule = null;
-  let bestScore = -Infinity;
+  let nearest = null;
+  let minDistance = Infinity;
 
-  appState.uhf_modules.forEach(module => {
-    const dx = tagPosition.x - module.x;
-    const dy = tagPosition.y - module.y;
-    const distance = Math.sqrt(dx * dx + dy * dy);
-    const score = -distance;
-    if (score > bestScore) {
-      bestScore = score;
-      bestModule = module;
+  appState.uhf_modules.forEach(mod => {
+    const dist = Math.hypot(tagPosition.x - mod.x, tagPosition.y - mod.y);
+    if (dist < minDistance) {
+      minDistance = dist;
+      nearest = mod;
     }
   });
 
-  return bestModule ? bestModule.id : null;
+  return nearest ? nearest.id : null;
 }
 
-async function sendUhfPing() {
+async function sendPositionPing() {
   if (!selectedTrackedUid || simEditMode || currentView !== 'sim') return;
-  const moduleId = strongestModuleId();
-  await api('/api/uhf/ping', {
-    method: 'POST',
-    body: JSON.stringify({ uid: selectedTrackedUid, strongest_module_id: moduleId })
-  });
+
+  const moduleId = findNearestModule();
+  if (!moduleId) return;
+
+  try {
+    await apiRequest('/api/uhf/ping', 'POST', {
+      item_uid: selectedTrackedUid,
+      module_id: moduleId
+    });
+  } catch (err) {
+    console.warn('Ping failed:', err);
+  }
 }
 
-function startPingLoop() {
-  if (pingIntervalId) clearInterval(pingIntervalId);
-  pingIntervalId = setInterval(() => {
-    sendUhfPing().catch(console.error);
-  }, 5000);
-}
+// Event Listeners
+document.getElementById('backHomeBtn').onclick = () => switchView('home');
+document.getElementById('openSimulatorBtn').onclick = () => switchView('sim');
+document.getElementById('backFromSimBtn').onclick = () => switchView('home');
 
-// ============================================================
-//  SECTION: EVENTS
-// ============================================================
-document.getElementById('addFolderBtn').addEventListener('click', async () => {
-  const name = prompt('Enter folder name');
-  if (!name) return;
-  await api('/api/folders', {
-    method: 'POST',
-    body: JSON.stringify({ name })
-  });
-});
-
-document.getElementById('backHomeBtn').addEventListener('click', () => showView('home'));
-document.getElementById('openSimulatorBtn').addEventListener('click', () => showView('sim'));
-document.getElementById('backFromSimBtn').addEventListener('click', () => showView('home'));
-
-document.getElementById('toggleHistoryBtn').addEventListener('click', () => {
+document.getElementById('toggleHistoryBtn').onclick = () => {
   historyPanel.classList.toggle('hidden');
-});
+};
 
-toggleEditBtn.addEventListener('click', () => {
+toggleEditBtn.onclick = () => {
   simEditMode = !simEditMode;
   if (!simEditMode) deleteModuleMode = false;
-  toggleEditBtn.textContent = simEditMode ? 'Exit editor' : 'Open editor';
+  toggleEditBtn.textContent = simEditMode ? 'Exit Editor' : 'Edit Gateways';
   toggleEditBtn.classList.toggle('active', simEditMode);
   renderAll();
-});
+};
 
-toggleDeleteModeBtn.addEventListener('click', () => {
+toggleDeleteModeBtn.onclick = () => {
   if (!simEditMode) return;
   deleteModuleMode = !deleteModuleMode;
   renderAll();
-});
+};
 
-trackedItemSelect.addEventListener('change', (e) => {
+trackedItemSelect.onchange = (e) => {
   selectedTrackedUid = e.target.value || null;
-});
+};
 
-bgImageInput.addEventListener('change', (event) => {
+bgImageInput.onchange = (e) => {
   if (!simEditMode) return;
-  const [file] = event.target.files || [];
+  const [file] = e.target.files || [];
   if (!file) return;
 
   const reader = new FileReader();
   reader.onload = () => {
-    backgroundImageDataUrl = reader.result;
+    floorplanDataUrl = reader.result;
     renderAll();
   };
   reader.readAsDataURL(file);
-});
+};
 
-bgScaleInput.addEventListener('input', () => {
-  backgroundScalePercent = clamp(Number(bgScaleInput.value) || 100, 25, 250);
-  renderBackgroundImage();
-  renderEditorControls();
-});
+bgScaleInput.oninput = () => {
+  floorplanScale = clamp(Number(bgScaleInput.value) || 100, 25, 250);
+  renderCanvas();
+  renderControls();
+};
 
-clearBgBtn.addEventListener('click', () => {
-  backgroundImageDataUrl = null;
-  backgroundScalePercent = 100;
+clearBgBtn.onclick = () => {
+  floorplanDataUrl = null;
+  floorplanScale = 100;
   bgImageInput.value = '';
   renderAll();
-});
+};
 
-simCanvas.addEventListener('click', async (e) => {
+simCanvas.onclick = async (e) => {
   if (!simEditMode || deleteModuleMode) return;
 
   const rect = simCanvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  const name = prompt('Module name', `UHF Module ${appState.uhf_modules.length + 1}`);
+  const x = Math.round(e.clientX - rect.left);
+  const y = Math.round(e.clientY - rect.top);
+
+  const name = prompt('Gateway label:', `UHF Node ${appState.uhf_modules.length + 1}`);
   if (!name) return;
 
-  await api('/api/uhf/modules', {
-    method: 'POST',
-    body: JSON.stringify({ name, x, y })
-  });
-});
+  const location = prompt('Location description (e.g. Hallway 3B):', name) || name;
 
-simCanvas.addEventListener('mousemove', (e) => {
+  try {
+    await apiRequest('/api/uhf/modules', 'POST', { name, location, x, y });
+  } catch (err) {
+    alert(`Could not create module: ${err.message}`);
+  }
+};
+
+simCanvas.onmousemove = (e) => {
   if (simEditMode) return;
   const rect = simCanvas.getBoundingClientRect();
-  const x = e.clientX - rect.left;
-  const y = e.clientY - rect.top;
-  if (x < 0 || y < 0 || x > rect.width || y > rect.height) return;
-  tagPosition = { x, y };
-  renderTagCursor();
-});
+  const x = Math.round(e.clientX - rect.left);
+  const y = Math.round(e.clientY - rect.top);
 
-simCanvas.addEventListener('mouseleave', () => {
-  if (simEditMode) return;
-  tagCursor.classList.add('hidden');
-});
+  if (x >= 0 && y >= 0 && x <= rect.width && y <= rect.height) {
+    tagPosition = { x, y };
+    renderTagCursor();
+  }
+};
 
-simCanvas.addEventListener('mouseenter', () => {
-  renderTagCursor();
-});
+simCanvas.onmouseleave = () => {
+  if (!simEditMode) tagCursor.classList.add('hidden');
+};
 
-document.getElementById('cancelRegisterBtn').addEventListener('click', closeRegistrationModal);
-document.getElementById('saveRegisterBtn').addEventListener('click', async () => {
+simCanvas.onmouseenter = () => {
+  if (!simEditMode) renderTagCursor();
+};
+
+document.getElementById('cancelRegisterBtn').onclick = closeRegistration;
+
+document.getElementById('saveRegisterBtn').onclick = async () => {
   const uid = registrationUidText.textContent.trim();
   const name = itemNameInput.value.trim();
   const folder_id = folderSelect.value;
-  if (!uid || !name || !folder_id) return;
 
-  await api('/api/items/register', {
-    method: 'POST',
-    body: JSON.stringify({ uid, name, folder_id })
-  });
-  nfcStatus.textContent = `Registered ${name}`;
-  nfcStatus.className = 'status-box ready';
-  closeRegistrationModal();
-});
+  if (!uid || !name) return;
 
-// ============================================================
-//  SECTION: SOCKET EVENTS
-// ============================================================
+  try {
+    await apiRequest('/api/items', 'POST', { uid, name, folder_id });
+    nfcStatus.textContent = `Registered: ${name}`;
+    nfcStatus.className = 'status-box ready';
+    closeRegistration();
+  } catch (err) {
+    alert(`Registration failed: ${err.message}`);
+  }
+};
+
+// WebSockets
 socket.on('connect', () => {
-  console.log('Connected to backend');
+  console.log('[Socket] Connected to backend');
 });
 
-socket.on('state_update', (nextState) => {
-  appState = nextState;
+socket.on('state_update', (latestState) => {
+  appState = latestState;
   renderAll();
 });
 
-socket.on('nfc_tag_detected', ({ uid }) => {
-  const known = !!appState.items[uid];
-  nfcStatus.textContent = known
-    ? `NFC read: ${uid} — status toggled`
-    : `New NFC tag detected: ${uid}`;
+socket.on('tag_scanned', ({ uid }) => {
+  const existing = appState.items[uid];
+  nfcStatus.textContent = existing ? `Scanned: ${existing.name}` : `New tag detected: ${uid}`;
   nfcStatus.className = 'status-box ready';
+  openRegistration(uid);
 });
 
-// ============================================================
-//  SECTION: INITIAL LOAD
-// ============================================================
-async function init() {
-  appState = await api('/api/state');
-  renderAll();
-  showView('home');
-  startPingLoop();
+// Init
+async function startup() {
+  try {
+    appState = await apiRequest('/api/state');
+    renderAll();
+    switchView('home');
+    pingInterval = setInterval(sendPositionPing, 4000);
+  } catch (err) {
+    console.error('Failed to initialize app state:', err);
+  }
 }
 
-init().catch(console.error);
+startup();
