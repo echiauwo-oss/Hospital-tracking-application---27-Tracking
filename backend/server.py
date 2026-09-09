@@ -1,8 +1,8 @@
-# ============================================================
+
 #  server.py
 #  Hospital Tracker — Backend
 #  Flask + Socket.IO + Serial reader for NFC + simulated UHF
-# ============================================================
+
 
 import json
 import os
@@ -20,9 +20,8 @@ try:
 except ImportError:
     serial = None
 
-# ============================================================
-#  SECTION: APP / SOCKET CONFIG
-# ============================================================
+#app and socket setup
+
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 FRONTEND_DIR = os.path.abspath(os.path.join(BASE_DIR, "..", "frontend"))
 DATA_FILE = os.path.join(BASE_DIR, "hospital_tracker_data.json")
@@ -32,9 +31,8 @@ app = Flask(__name__, static_folder=FRONTEND_DIR, static_url_path="")
 app.config["SECRET_KEY"] = "hospital-tracker-demo"
 socketio = SocketIO(app, cors_allowed_origins="*", async_mode="threading")
 
-# ============================================================
-#  SECTION: DEFAULT DATA MODEL
-# ============================================================
+#default data module
+
 DEFAULT_STATE = {
     "folders": [
         {"id": "folder-infusion", "name": "Infusion Pumps"},
@@ -51,9 +49,8 @@ DEFAULT_STATE = {
 state_lock = threading.Lock()
 state = deepcopy(DEFAULT_STATE)
 
-# ============================================================
-#  SECTION: PERSISTENCE HELPERS
-# ============================================================
+# persistence helpers
+
 def load_state() -> None:
     global state
     if os.path.exists(DATA_FILE):
@@ -78,9 +75,8 @@ def get_snapshot() -> Dict:
         return deepcopy(state)
 
 
-# ============================================================
-#  SECTION: BUSINESS LOGIC — ITEMS / FOLDERS
-# ============================================================
+# items and folders
+
 def emit_state() -> None:
     socketio.emit("state_update", get_snapshot())
 
@@ -132,9 +128,8 @@ def handle_nfc_uid(uid: str) -> None:
     socketio.emit("nfc_tag_detected", {"uid": uid})
 
 
-# ============================================================
-#  SECTION: BUSINESS LOGIC — UHF MODULES / PINGS
-# ============================================================
+# UHF modules & pings
+
 def add_uhf_module(name: str, x: float, y: float) -> Dict:
     module = {
         "id": f"uhf-{int(time.time() * 1000)}",
@@ -188,9 +183,8 @@ def update_item_location_from_ping(uid: str, strongest_module_id: Optional[str])
     emit_state()
 
 
-# ============================================================
-#  SECTION: SERIAL READER
-# ============================================================
+# serial reader
+
 def auto_detect_port() -> Optional[str]:
     if serial is None:
         return None
@@ -237,9 +231,8 @@ def serial_reader_loop() -> None:
             time.sleep(3)
 
 
-# ============================================================
-#  SECTION: ROUTES — STATIC FRONTEND
-# ============================================================
+# static frontend
+
 @app.route("/")
 def index():
     return send_from_directory(FRONTEND_DIR, "index.html")
@@ -250,9 +243,8 @@ def api_state():
     return jsonify(get_snapshot())
 
 
-# ============================================================
-#  SECTION: ROUTES — FOLDERS / ITEMS
-# ============================================================
+#folders and items
+
 @app.route("/api/folders", methods=["POST"])
 def api_create_folder():
     data = request.get_json(force=True)
@@ -298,9 +290,8 @@ def api_update_item(uid: str):
     return jsonify({"success": True})
 
 
-# ============================================================
-#  SECTION: ROUTES — UHF SIMULATION
-# ============================================================
+# UHF tracking simulation
+
 @app.route("/api/uhf/modules", methods=["POST"])
 def api_add_uhf_module():
     data = request.get_json(force=True)
@@ -339,10 +330,8 @@ def api_uhf_ping():
     update_item_location_from_ping(uid, strongest_module_id)
     return jsonify({"success": True})
 
+# startup
 
-# ============================================================
-#  SECTION: STARTUP
-# ============================================================
 if __name__ == "__main__":
     load_state()
     threading.Thread(target=serial_reader_loop, daemon=True).start()
